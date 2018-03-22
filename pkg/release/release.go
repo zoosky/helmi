@@ -19,11 +19,12 @@ const lookupRegex = `\{\{\s*lookup\s*\(\s*'(?P<type>[\w]+)'\s*,\s*'(?P<path>[\w/
 const lookupRegexType = "type"
 const lookupRegexPath = "path"
 
-const lookupValue = "value"
-const lookupCluster = "cluster"
+const lookupValue    = "value"
+const lookupCluster  = "cluster"
 const lookupUsername = "username"
 const lookupPassword = "password"
-const lookupEnv = "env"
+const lookupEnv      = "env"
+const lookupRelease  = "release"
 
 type Status struct {
 	IsFailed    bool
@@ -381,6 +382,15 @@ func getUserCredentials(service catalog.CatalogService, plan catalog.CatalogPlan
 			}
 		}
 
+		if strings.EqualFold(lookupType, lookupRelease) {
+			if strings.EqualFold(lookupPath, "name") {
+				return helmStatus.Name
+			}
+			if strings.EqualFold(lookupPath, "namespace") {
+				return helmStatus.Namespace
+			}
+		}
+
 		if strings.EqualFold(lookupType, lookupUsername) {
 			username := helmValues[lookupPath]
 			return username
@@ -406,7 +416,7 @@ func getUserCredentials(service catalog.CatalogService, plan catalog.CatalogPlan
 					}
 				}
 
-				return "0"
+				return portParts[1]
 			}
 
 			// single host
